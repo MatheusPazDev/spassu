@@ -1,2 +1,3 @@
-# spassu
+# SPASSU
+
 Desafio de AD da Spassu

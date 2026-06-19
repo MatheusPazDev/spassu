@@ -1,0 +1,88 @@
+-- ========================================================================== --
+-- PARTE 1 - MODELO LOGICO                                                    --
+-- ========================================================================== --
+
+TB_CLIENTE {
+    CO_CLIENTE int pk
+    NO_CLIENTE varchar(150)
+    NU_CPF char(11)
+    DS_EMAIL varchar(150)
+    DT_NASCIMENTO date
+}
+
+TB_ENDERECO_CLIENTE {
+    CO_ENDERECO_CLIENTE int pk
+    CO_CLIENTE int fk
+    DS_LOGRADOURO varchar(150)
+    NU_ENDERECO varchar(20)
+    DS_COMPLEMENTO varchar(100)
+    NO_BAIRRO varchar(100)
+    NO_CIDADE varchar(100)
+    SG_UF char(2)
+    NU_CEP char(8)
+    ST_PRINCIPAL char(1)
+}
+TB_ENDERECO_CLIENTE.CO_CLIENTE > TB_CLIENTE.CO_CLIENTE
+
+TB_CATEGORIA {
+    CO_CATEGORIA int pk
+    NO_CATEGORIA varchar(100)
+}
+
+TB_PRODUTO {
+    CO_PRODUTO int pk
+    CO_CATEGORIA int fk
+    NO_PRODUTO varchar(150)
+    VL_PRECO decimal(10,2)
+}
+TB_PRODUTO.CO_CATEGORIA > TB_CATEGORIA.CO_CATEGORIA
+
+TB_STATUS_PEDIDO {
+    CO_STATUS_PEDIDO int pk
+    NO_STATUS_PEDIDO varchar(50)
+}
+
+TB_PEDIDO {
+    CO_PEDIDO int pk
+    CO_CLIENTE int fk
+    CO_ENDERECO_CLIENTE int fk
+    CO_STATUS_PEDIDO int fk
+    DT_PEDIDO datetime
+    VL_TOTAL_PEDIDO decimal(12,2)
+    -- ST_STATUS VARCHAR(20) CHECK ('PENDENTE', 'CONCLUIDO'....)
+}
+TB_PEDIDO.CO_CLIENTE > TB_CLIENTE.CO_CLIENTE
+TB_PEDIDO.CO_ENDERECO_CLIENTE > TB_ENDERECO_CLIENTE.CO_ENDERECO_CLIENTE
+TB_PEDIDO.CO_STATUS_PEDIDO > TB_STATUS_PEDIDO.CO_STATUS_PEDIDO
+
+TB_ITEM_PEDIDO {
+    CO_ITEM_PEDIDO int pk
+    CO_PEDIDO int fk
+    CO_PRODUTO int fk
+    QT_PRODUTO int
+    VL_UNITARIO decimal(10,2)
+}
+TB_ITEM_PEDIDO.CO_PEDIDO > TB_PEDIDO.CO_PEDIDO
+TB_ITEM_PEDIDO.CO_PRODUTO > TB_PRODUTO.CO_PRODUTO
+
+
+
+
+
+-- ========================================================================== --
+-- PARTE 4 - MIGRATIONS                                                       --
+-- ========================================================================== --
+
+TB_USUARIO {
+    CO_USUARIO int pk
+    NO_USUARIO varchar(50)
+}
+
+TB_RECURSO_ACAO_PROCESSO {
+    CO_RECURSO_ACAO_PROCESSO int pk
+    NO_RECURSO_ACAO_PROCESSO varchar(50) unique
+    ST_ATIVO boolean
+    DT_INCLUSAO datetime
+    CO_USUARIO_INCLUSAO int fk
+}
+TB_RECURSO_ACAO_PROCESSO.CO_USUARIO_INCLUSAO > TB_USUARIO.CO_USUARIO

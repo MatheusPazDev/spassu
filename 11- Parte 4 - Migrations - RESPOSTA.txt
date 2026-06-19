@@ -1,0 +1,109 @@
+Parte 4 - Migrations
+
+Enunciado:
+Considere o seguinte script que foi encontrado em um repositório e aplicado em produção, mas não foi registrado como migration. Agora, a equipe deseja adicioná-lo ao fluxo automatizado para que, ao ser aplicado novamente, não cause falhas ou inconsistências nos ambientes onde já foi executado.
+    INSERT INTO recurso_acao_processo (
+        id_recurso_acao_processo,
+        nome,
+        ativo,
+        data_inclusao,
+        id_usuario_inclusao
+    ) VALUES (
+        532,
+        'Vincular boleto',
+        1,
+        NAW(),
+        id_user_homologacao
+    );
+    
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 
+Tarefa
+1 - Analise o script acima e liste todos os problemas e riscos potenciais, levando em consideração múltiplos ambientes e reaplicações.
+-- RESPOSTA:
+    1 - O script não permite ser reaplicado
+        Não existe nenhuma validação para verificar se o registro já foi inserido anteriormente.
+        Caso a migration seja executada mais de uma vez, pode ocorrer:
+            * Conflitos de chave primária (PK 532 já existente);
+            * Violações de restrições UNIQUE no campo NOME;
+            * Duplicidade de registros, caso não exista restrição de unicidade.
+
+    2 - Dependência de uma chave primária fixa
+        A utilização da PK fixa 532 pressupõe que esse ID esteja disponível em todos os ambientes.
+        Caso a chave já esteja sendo utilizada por outro registro, a inserção falhará ou poderá gerar inconsistências entre os ambientes.
+
+    3 - Dependência de um usuário específico do ambiente
+        O campo ID_USUARIO_INCLUSAO aparenta ser uma chave estrangeira para a tabela de usuários.
+        O valor ID_USER_HOMOLOGACAO é dependente do ambiente e não é inicializado no script.
+        Como os IDs podem ser diferentes entre os ambientes, a execução pode falhar ou associar o registro ao usuário incorreto.
+
+    4 - Uso de função não reconhecida/inválida 
+        A função NAW() não é uma função nativa do MySQL, o correto seria utilizar NOW() ou CURRENT_DATE().
+        Caso NAW() seja uma Função/Procedure criada, é necessário garantir que ela exista e esteja implementada da mesma forma em todos os ambientes.
+
+    5 - Ausência de controle transacional
+        O script não utiliza transações para garantir a consistência da execução.
+        Em cenários mais complexos, falhas durante o processamento podem deixar a base de dados incompleta.
+        O uso de START TRANSACTION, COMMIT e ROLLBACK aumenta a confiabilidade da migration e integridade dos dados.
+
+    Resumo:
+    1- Reaplicação da migration.
+    2- PK fixa.
+    3- Usuário dependente do ambiente.
+    4- Função naw().
+    5- Controle transacional.
+
+
+
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 
+2 - Reescreva o script seguindo as boas práticas para que: 
+    - Seja seguro de ser reaplicado.
+    - Evite conflitos com dados já existentes.
+    - Garanta consistência entre os ambientes.
+    - Utilize parâmetros dinâmicos quando necessário.
+-- RESPOSTA:
+    Abordagens Implementadas:
+        1. Script Simples | Arquivo: "12- Parte 4 - Migrations - Script Simples.sql"
+            Este script adota uma abordagem direta e focada exclusivamente na inserção do registro.
+            Antes de realizar o INSERT, são executadas validações para garantir que:
+                - O usuário SISTEMA foi localizado na base de dados;
+                - A chave primária (PK) informada ainda não existe;
+                - O nome do Recurso Ação Processo ainda não existe na tabela.
+            Caso todas as condições sejam atendidas, o registro é inserido. Caso contrário, o insert não faz nada.
+            No final da execução, o script retorna uma mensagem indicando o resultado do processamento:
+                - Inserido
+                - Não Inserido
+
+        2. Script Completo e Dinâmico | Arquivo: "13- Parte 4 - Migrations - Script Full Dinamico.sql"
+            Este script implementa uma abordagem mais completa, lidando com diferentes estados dos ambientes.
+                - Localiza o usuário SISTEMA responsável pela operação
+                - Verifica se já existe um registro com o mesmo nome
+                - Verifica se a PK informada já está sendo utilizada
+                - Permite trabalhar tanto com PK fixa quanto com geração automática via AUTO_INCREMENT
+                - Caso o registro já exista, mas esteja inativo, realiza sua reativação
+                - Caso o registro não exista, executa a inserção respeitando a estratégia definida para a PK
+            No final da execução, o script retorna uma mensagem indicando o resultado do processamento:
+                - Registro inserido com sucesso
+                - Registro reativado
+                - Registro já existente e ativo
+                - Conflito de chave primária
+                - Divergência entre nome e PK esperada
+                - Falha na localização do usuário SISTEMA
+
+
+
+
+
+-- ------------------------------------------------------------------------------------------------------------------------------------------------------
+-- 
+3 - Explique por que suas alterações resolvem os problemas encontrados.
+-- RESPOSTA:
+    Os dois scripts tem o mesmo objetivo principal: garantir que a migration possa ser executada mais de uma vez sem gerar erros ou inconsistências nos dados.
+    O primeiro problema foi tratado com consultas antes da inserção do registro e o WHERE verifica se o registro existe antes de realizar o INSERT. Isso evita a criação de dados duplicados, confitos de chave primaria e violações de UNIQUE.
+    Também foi removida a dependência do ID do usuario fixo entre os ambientes. O Script busca o usuário pela chave candidata nome do usuario, então mesmo que o usuário SISTEMA possua IDs diferentes nos ambientes, o script continuará funcionando corretamente.
+    Por fim, os comandos foram encapsulados em uma transação. Assim, as alterações só são gravadas definitivamente após a execução completa do script por meio do COMMIT.
+    Com essas alterações a migration se torna reaplicável independente do ambiente, garantindo a integridade dos dados.
+    
+

@@ -1,0 +1,21 @@
+Parte 3 - Otimização de uma Query
+
+Analise a consulta abaixo e proponha uma nova versão mais performática e clara criando uma procedure com o devido resultado.
+    SELECT c.nome, p.id, p.valor_total
+    FROM pedidos p, clientes c
+    WHERE p.id_cliente = c.id
+    AND p.status = 'concluido'
+    AND p.valor_total > 1000
+    ORDER BY p.data_criacao DESC;
+
+Justifique sua resposta em poucas palavras.
+-------------------------------------------------------------------------
+
+RESPOSTA:
+1- Quando se utiliza um FROM com duas tabelas separadas por vírgula, o banco de dados interpreta a consulta como um produto cartesiano e, somente após isso, aplica os filtros definidos na cláusula WHERE.
+2- Ao substituir o JOIN implícito (CROSS JOIN) por um JOIN explícito (INNER JOIN), a relação entre as tabelas é definida diretamente na cláusula de junção ( ON ), fazendo com que a consulta retorne somente os registros pertinentes à consulta.
+3- Na procedure, foi criado um parâmetro para definir o valor mínimo e Status desejado, tornando a funcionalidade reutilizável, sem a necessidade de alterar o código fonte para atender a diferentes valores.
+4- Como o campo textual de status foi removido da TB_PEDIDO e passou a ser armazenado em uma tabela de domínio (TB_STATUS_PEDIDO), foi necessário adicionar um JOIN com a TB_STATUS_PEDIDO para identificar o parâmetro solicitado.
+5- O campo de data (TB_PEDIDO.DT_PEDIDO) utilizado na ordenação foi incluído no retorno da consulta, permitindo visualizar e validar o critério de ordenação aplicado aos resultados.
+
+>> O codigo fonte da procedure está no arquivo "09- sp_consulta_pedidos_status_valor.sql"
