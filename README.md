@@ -20,7 +20,7 @@ Este repositório contém todos os artefatos desenvolvidos para a resolução do
 
 ---
 
-### Parte 2 – Procedure de Relatório de Vendas
+### Parte 2 — SQL Avançado e Procedimentos Armazenados
 
 | Arquivo                                                              | Descrição                                                                               |
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -29,7 +29,7 @@ Este repositório contém todos os artefatos desenvolvidos para a resolução do
 
 ---
 
-### Parte 3 – Otimização de Consulta SQL
+### Parte 3 - Otimização de uma Query
 
 | Arquivo                                                                 | Descrição                                                                |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------ |
@@ -39,7 +39,7 @@ Este repositório contém todos os artefatos desenvolvidos para a resolução do
 
 ---
 
-### Parte 4 – Migrations
+### Parte 4 - Migrations
 
 | Arquivo                                                  | Descrição                                                               |
 | -------------------------------------------------------- | ----------------------------------------------------------------------- |
